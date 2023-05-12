@@ -1,5 +1,5 @@
-import { cx, useYoopta } from '@yoopta/editor';
-import { CSSProperties, RefObject, useEffect, useMemo, useRef, useState } from 'react';
+import { cx } from '@yoopta/editor';
+import { CSSProperties, RefObject, useEffect, useRef, useState } from 'react';
 import { Editor, Range } from 'slate';
 import { useSlate } from 'slate-react';
 import { getRectByCurrentSelection } from '../utils/selectionRect';
@@ -12,11 +12,8 @@ type RootProps = {
   style?: CSSProperties;
 };
 
-type MarkMap = { [key: string]: { toggle: (options?: { only: boolean }) => void; isActive: boolean } };
-
 export type ToolbarProps = {
   getRootProps: () => RootProps;
-  marks: MarkMap;
 };
 
 type FixedProps = {
@@ -38,16 +35,24 @@ type Props = FixedProps | BubleProps;
 
 const STYLES: CSSProperties = { position: 'relative' };
 
+const DEFAULT_BUBBLE_STYLE: CSSProperties = {
+  bottom: 'auto',
+  left: '-1000px',
+  opacity: 0,
+  position: 'fixed',
+  right: 'auto',
+  top: '-1000px',
+};
+
 const Toolbar = ({ type = 'bubble', style, className, render }: Props) => {
   const isFixedToolbar = type === 'fixed';
 
   const editor = useSlate();
   const toolbarRef = useRef<HTMLDivElement>(null);
-  const [toolbarProps, setToolbarProps] = useState({ open: isFixedToolbar, style: {} });
-  const { marks } = useYoopta();
+  const [toolbarProps, setToolbarProps] = useState({ open: isFixedToolbar, style: DEFAULT_BUBBLE_STYLE });
 
   const hideToolbar = () => {
-    setToolbarProps({ open: false, style: {} });
+    setToolbarProps({ open: false, style: DEFAULT_BUBBLE_STYLE });
   };
 
   const updateToolbarPosition = () => {
@@ -58,11 +63,11 @@ const Toolbar = ({ type = 'bubble', style, className, render }: Props) => {
 
     left = left < 0 ? 10 : left;
 
-    setToolbarProps({ open: true, style: { top, left, opacity: 1 } });
+    setToolbarProps({ open: true, style: { ...toolbarProps.style, top, left, opacity: 1 } });
   };
 
   useEffect(() => {
-    if (isFixedToolbar) return setToolbarProps({ open: true, style: {} });
+    if (isFixedToolbar) return setToolbarProps({ open: true, style: DEFAULT_BUBBLE_STYLE });
     if (!editor.selection || !toolbarRef.current) return hideToolbar();
 
     const [, firstElementPath] = Editor.first(editor, [0]);
@@ -98,11 +103,14 @@ const Toolbar = ({ type = 'bubble', style, className, render }: Props) => {
 
   const renderProps: ToolbarProps = {
     getRootProps,
-    marks,
   };
 
   if (typeof render === 'function') {
-    return <div style={STYLES}>{render(renderProps)}</div>;
+    return (
+      <div style={STYLES} className="yoopta-toolbar">
+        {render(renderProps)}
+      </div>
+    );
   }
 
   return <DefaultToolbar {...renderProps} />;

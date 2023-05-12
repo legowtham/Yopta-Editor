@@ -18,6 +18,7 @@ import 'prismjs/components/prism-java';
 import 'prismjs/components/prism-csharp';
 import 'prismjs/components/prism-swift';
 import 'prismjs/components/prism-r';
+import 'prismjs/components/prism-bash';
 import 'prismjs/components/prism-ruby';
 import 'prismjs/components/prism-c';
 import 'prismjs/components/prism-cpp';
@@ -26,14 +27,14 @@ import 'prismjs/components/prism-scala';
 import 'prism-material-themes/themes/material-default.css';
 
 import { LanguageSelect } from './LanguageSelect';
-import { cx, RenderYooptaElementProps, YoEditor, UI_HELPERS } from '@yoopta/editor';
+import { cx, RenderYooptaElementProps, YoEditor, UI_HELPERS, getElementClassname } from '@yoopta/editor';
 import { disableBodyScroll, enableBodyScroll } from 'body-scroll-lock';
 import { CodeElement } from '../types';
 
 const OPTIONS_WIDTH = 265;
 
 const CodeEditor = (editor: YoEditor) => {
-  return function CodeEditor({ element, attributes, children }: RenderYooptaElementProps<CodeElement>) {
+  return function CodeEditor({ element, attributes, children, HTMLAttributes }: RenderYooptaElementProps<CodeElement>) {
     const [optionsPos, setOptionsPos] = useState<CSSProperties | null>(null);
     useEffect(() => {
       Prism.highlightAll(true);
@@ -83,7 +84,11 @@ const CodeEditor = (editor: YoEditor) => {
     };
 
     return (
-      <code className={s.code} {...attributes}>
+      <code
+        {...attributes}
+        {...HTMLAttributes}
+        className={getElementClassname<CodeElement>({ element, HTMLAttributes, className: s.code })}
+      >
         <pre className={cx(s.pre, `language-${element.data.language}`)}>
           {/* [TODO] - it could needed feature */}
           {children}

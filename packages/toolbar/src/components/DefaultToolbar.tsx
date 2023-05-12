@@ -1,10 +1,12 @@
 import { ToolbarProps } from './Toolbar';
-import { cx } from '@yoopta/editor';
+import { cx, useMarks } from '@yoopta/editor';
 import s from './DefaultToolbar.module.scss';
 
-const DefaultToolbar = ({ getRootProps, marks }: ToolbarProps) => {
+const DefaultToolbar = ({ getRootProps }: ToolbarProps) => {
+  const marks = useMarks();
+
   return (
-    <div {...getRootProps()}>
+    <div {...getRootProps()} className={cx(getRootProps().className, 'yoopta-toolbar')}>
       <div className={s.toolbar}>
         <div className={s.marks}>
           <button
