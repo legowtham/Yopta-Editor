@@ -1,12 +1,12 @@
-import { Range, Transforms } from 'slate';
-import { YoEditor } from '../../../types';
+import { Transforms } from 'slate';
+import { YooEditor } from '../../../types';
 import { deserializeHtml } from '../../../utils/deserializeHTML';
 
-const withHtml = (editor: YoEditor) => {
+const withHtml = (editor: YooEditor) => {
   const { insertData } = editor;
 
   editor.insertData = (data) => {
-    if (editor.selection && Range.isExpanded(editor.selection)) return;
+    if (!editor.selection) return;
     const html = data.getData('text/html');
 
     if (html) {

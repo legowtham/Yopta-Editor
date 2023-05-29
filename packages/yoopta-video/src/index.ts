@@ -1,4 +1,4 @@
-import { createYooptaPlugin, generateId, getElementByPath, YoEditor } from '@yoopta/editor';
+import { createYooptaPlugin, generateId, getElementByPath, YooEditor } from '@yoopta/editor';
 import { Transforms } from 'slate';
 import { VideoElement, VideoElementData, VideoPluginOptions } from './types';
 import { Video as VideoRender } from './ui/Video';
@@ -6,7 +6,7 @@ import { VideoEditorFactory } from './ui/VideoEditor';
 
 declare module 'slate' {
   interface CustomTypes {
-    Editor: YoEditor;
+    Editor: YooEditor;
     Element: VideoElement;
   }
 }
@@ -51,8 +51,10 @@ const Video = createYooptaPlugin<VideoPluginOptions, VideoElement>({
     data: { url: null, size: { width: 'auto', height: 'auto' } },
     children: [{ text: '' }],
   }),
-  createElement: (editor) => {
-    Transforms.setNodes(editor, Video.getPlugin.defineElement(), {
+  createElement: (editor, elementData) => {
+    const node: VideoElement = { ...Video.getPlugin.defineElement(), ...elementData };
+
+    Transforms.setNodes(editor, node, {
       at: editor.selection?.anchor,
     });
   },

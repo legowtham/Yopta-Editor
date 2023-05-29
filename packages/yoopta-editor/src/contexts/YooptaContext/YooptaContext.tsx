@@ -2,7 +2,7 @@ import { Editor, Element, NodeEntry, Path, Text, Transforms } from 'slate';
 import React, { ReactElement, ReactNode, useContext, useMemo } from 'react';
 import { useSlate } from 'slate-react';
 import { YooptaBaseElement } from '../../types';
-import { mergePlugins, ParentYooptaPlugin, YooptaPlugin, YooptaPluginType } from '../../utils/plugins';
+import { ParentYooptaPlugin, YooptaPluginType } from '../../utils/plugins';
 import { YooptaMark } from '../../utils/marks';
 import { getDefaultParagraphLine } from '../../components/Editor/utils';
 import { generateId } from '../../utils/generateId';
@@ -18,6 +18,7 @@ type YooptaToolsMap = {
   Toolbar: (props: any) => ReactElement;
   ActionMenu: (props: any) => ReactElement;
   ChatGPT: (props: any) => ReactElement;
+  LinkTool: (props: any) => ReactElement;
   [x: string]: (props: any) => ReactElement;
 };
 
@@ -48,6 +49,8 @@ export type ElementsMap = {
     create: YooptaPluginType['createElement'];
     define: YooptaPluginType['defineElement'];
     toggle: (options?: ToggleOptions) => void;
+    isActive: boolean;
+    options: { displayLabel?: string };
   };
 };
 
@@ -102,25 +105,38 @@ const YooptaContextProvider = ({ children, plugins: pluginList, marks: markList,
         });
       }
 
-      plugin.createElement?.(editor);
+      plugin.createElement?.(editor, { id: currentNode.id });
     });
   };
 
-  const elements = useMemo<ElementsMap>(() => {
+  const isElementActive = (type: string) => {
+    if (!editor.selection) return false;
+
+    const [element] = Editor.nodes(editor, {
+      at: Editor.unhangRange(editor, editor.selection),
+      match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.type === type,
+    });
+
+    return !!element;
+  };
+
+  const getElements = () => {
     const ELEMENTS_MAP: ElementsMap = {};
 
     pluginList.forEach((plugin) => {
-      const { createElement, defineElement, type } = plugin;
+      const { createElement, defineElement, type, options } = plugin;
       ELEMENTS_MAP[plugin.type] = {
         create: createElement,
         define: defineElement,
         toggle: (options) => toggleNodeElement(plugin, options),
         type,
+        isActive: isElementActive(type),
+        options: { displayLabel: options?.displayLabel },
       };
     });
 
     return ELEMENTS_MAP;
-  }, [pluginList, editor.selection, tools]);
+  };
 
   const checkIsMarkActive = (mark) => {
     const marks = Editor.marks(editor);
@@ -168,6 +184,7 @@ const YooptaContextProvider = ({ children, plugins: pluginList, marks: markList,
               style,
               className,
               plugins: pluginList,
+              asTool: true,
               ...rest,
               ...ToolComponent?.props,
             });
@@ -179,8 +196,9 @@ const YooptaContextProvider = ({ children, plugins: pluginList, marks: markList,
   }, [tools, editor.selection]);
 
   const value = useMemo(() => {
+    const elements = getElements();
     return { elements, marks, tools: yooptaTools };
-  }, [editor.selection, marks, elements]);
+  }, [editor.selection, marks]);
 
   return <YooptaContext.Provider value={value}>{children}</YooptaContext.Provider>;
 };

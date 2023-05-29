@@ -1,4 +1,4 @@
-import YooptaEditor, { createYooptaMark } from '@yoopta/editor';
+import YooptaEditor, { createYooptaMark, createYooptaPlugin } from '@yoopta/editor';
 import Blockquote, { BlockquoteElement } from '@yoopta/blockquote';
 import Paragraph, { ParagraphElement } from '@yoopta/paragraph';
 import Callout, { CalloutElement } from '@yoopta/callout';
@@ -14,6 +14,7 @@ import ChatGPT from '@yoopta/chat-gpt-assistant';
 import YooptaRenderer from '@yoopta/renderer';
 import { Bold, Italic, CodeMark, Underline, Strike } from '@yoopta/marks';
 import ActionMenu, { ActionMenuItem } from '@yoopta/action-menu-list';
+import LinkTool from '@yoopta/link-tool';
 import { useState } from 'react';
 import NextImage from 'next/image';
 import { MediumToolbar } from '../../components/Toolbars/MediumToolbar';
@@ -217,15 +218,12 @@ const ACTION_MENU_ITEMS: ActionMenuItem<Record<'description' | 'icon', string>>[
   },
 ];
 
-const SuperStrike = createYooptaMark({
-  type: 'super-strike',
-  hotkey: 'mod+shift+.',
-  className: s.superStrike,
-});
-
 const TOOLS = {
   Toolbar: <Toolbar />,
-  ActionMenu: <ActionMenu items={ACTION_MENU_ITEMS} render={NotionActionMenu} />,
+  ActionMenu: <ActionMenu items={ACTION_MENU_ITEMS} />,
+  LinkTool: <LinkTool onlyTool />,
+
+  // [WORK IN PROGRESS]
   // ChatGPT: <ChatGPT API_URL="https://path/api/chatgpt" />,
 };
 
@@ -234,7 +232,7 @@ const BasicExample = () => {
   const [mode, toggleMode] = useState<'render' | 'edit'>('edit');
 
   const isEdit = mode === 'edit';
-  const marks = [Bold, Italic, CodeMark, Underline, Strike, SuperStrike];
+  const marks = [Bold, Italic, CodeMark, Underline, Strike];
 
   return (
     <div className={s.container}>

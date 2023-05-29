@@ -2,7 +2,7 @@ import uniqWith from 'lodash.uniqwith';
 import { HTMLAttributes, ReactElement } from 'react';
 import { Element, NodeEntry, Range } from 'slate';
 import { RenderLeafProps } from 'slate-react';
-import { YoEditor, RenderYooptaElementProps, YooptaBaseElement } from '../types';
+import { YooEditor, RenderYooptaElementProps, YooptaBaseElement } from '../types';
 import { EditorEventHandlers } from '../types/eventHandlers';
 import { HOTKEYS_TYPE } from './hotkeys';
 
@@ -13,7 +13,7 @@ export type HandlersOptions = {
 
 export type DecoratorFn = (nodeEntry: NodeEntry) => Range[];
 export type YooptaPluginEventHandlers = {
-  [key in keyof EditorEventHandlers]: (editor: YoEditor, options: HandlersOptions) => EditorEventHandlers[key] | void;
+  [key in keyof EditorEventHandlers]: (editor: YooEditor, options: HandlersOptions) => EditorEventHandlers[key] | void;
 };
 
 export type YooptaPluginBaseOptions = {
@@ -23,7 +23,7 @@ export type YooptaPluginBaseOptions = {
 };
 
 export type YooptaRenderElementFunc<P extends YooptaBaseElement<string> = YooptaBaseElement<string>> = (
-  editor: YoEditor,
+  editor: YooEditor,
   plugin: YooptaPluginType,
 ) => (props: RenderYooptaElementProps<P> & YooptaRenderHTMLAttributes) => ReactElement;
 
@@ -57,19 +57,51 @@ export type YooptaPluginType<
   O extends YooptaPluginBaseOptions = YooptaPluginBaseOptions,
   P extends YooptaBaseElement<string> = YooptaBaseElement<string>,
 > = {
+  /**
+   * The type of the plugin and element.
+   */
   type: string;
+  /**
+   * The plugin's renderer which can be .
+   */
   renderer: YooptaRenderer<P>;
+  /**
+   * The element placeholder.
+   */
   placeholder?: string | null;
+  /**
+   * The element's shortcuts.
+   */
   shortcut?: string | string[];
+  /**
+   * The element's exports which contain rules for deserializers and serializers for plain text([WIP]) html, markdown.
+   */
   exports?: Exports<P>;
+  /**
+   * The element's events: onKeyDown, onCopy and etc.
+   */
   events?: YooptaPluginEventHandlers;
+  /**
+   * The element's options object that can be extended with custom options for your plugin
+   * Default options: HTMLAttributes
+   */
   options?: O & YooptaRenderHTMLAttributes;
-  extendEditor?: (editor: YoEditor) => YoEditor;
-  decorator?: (editor: YoEditor) => DecoratorFn;
-  leaf?: (editor: YoEditor) => (props: RenderLeafProps) => any;
+  /**
+   *
+   * @param editor
+   * @returns
+   */
+  extendEditor?: (editor: YooEditor) => YooEditor;
+  /**
+   * Slate decorator for text ranges. Check docs: https://docs.slatejs.org/concepts/09-rendering#decorations
+   */
+  decorator?: (editor: YooEditor) => DecoratorFn;
+  /** Slate leaves. Check docs: https://docs.slatejs.org/concepts/09-rendering#decorations */
+  leaf?: (editor: YooEditor) => (props: RenderLeafProps) => any;
+  /** Useful key for plugins which contain children as plugin. For example NumberedList contain childPlugin ListItem */
   childPlugin?: YooptaPlugin<any, any>;
   hasParent?: boolean;
-  createElement?: (editor: YoEditor) => void;
+  createElement?: (editor: YooEditor, elementData?: Partial<P>) => void;
   defineElement: () => P;
 };
 

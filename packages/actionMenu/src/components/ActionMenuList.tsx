@@ -1,6 +1,6 @@
-import { HOTKEYS, YoEditor, YooptaBaseElement, YooptaPluginType, useElements, cx } from '@yoopta/editor';
+import { HOTKEYS, YooEditor, YooptaBaseElement, YooptaPluginType, useElements, cx } from '@yoopta/editor';
 import { disableBodyScroll, enableBodyScroll } from 'body-scroll-lock';
-import { CSSProperties, ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import { CSSProperties, MouseEvent, ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { Element, Editor, Path, Point, Transforms, Text } from 'slate';
 import { useSlate } from 'slate-react';
 import { getRectByCurrentSelection } from '../utils/selectionRect';
@@ -15,7 +15,8 @@ import {
 import { DefaultMenuRender } from './DefaultMenuRender';
 import s from './DefaultMenuRender.module.scss';
 
-const checkIsMenuOpen = (style: CSSProperties) => style.opacity === 1 && !!style.top && !!style.right;
+const checkIsMenuOpen = (style: CSSProperties, point: Point | null) =>
+  style.opacity === 1 && !!style.top && !!style.right && point !== null;
 
 type ToggleOptions = {
   shouldDeleteText?: boolean;
@@ -52,8 +53,8 @@ const filterBy = (item: ActionMenuRenderItem | ActionMenuRenderItem['options'], 
 
 const ACTION_MENU_ITEM_DATA_ATTR = 'data-action-menu-item';
 
-const ActionMenuList = ({ items, render, plugins, trigger = '/', ...rest }: Props): JSX.Element => {
-  const editor = useSlate() as YoEditor;
+const ActionMenuList = ({ items, render, plugins, trigger = '/', asTool, on, ...rest }: Props): JSX.Element => {
+  const editor = useSlate() as YooEditor;
   const elements = useElements();
   const actionMenuRef = useRef<HTMLDivElement>(null);
   const [menuProps, setMenuProps] = useState<MenuProps>(() => getDefaultMenuPropsState(rest?.style));
@@ -110,7 +111,7 @@ const ActionMenuList = ({ items, render, plugins, trigger = '/', ...rest }: Prop
     }
   };
 
-  const isMenuOpen = checkIsMenuOpen(menuProps.fixedStyle);
+  const isMenuOpen = checkIsMenuOpen(menuProps.fixedStyle, menuProps.point);
 
   const filterMenuList = (item: ActionMenuRenderItem) => {
     let filterText = searchString;
@@ -257,6 +258,8 @@ const ActionMenuList = ({ items, render, plugins, trigger = '/', ...rest }: Prop
   };
 
   useEffect(() => {
+    if (!isMenuOpen) return;
+
     if (!editor.selection || !menuProps.point) return hideActionMenu();
 
     const parentPath: Path = Path.parent(editor.selection.anchor.path);
@@ -297,6 +300,8 @@ const ActionMenuList = ({ items, render, plugins, trigger = '/', ...rest }: Prop
     elements[type]?.toggle({
       shouldDeleteText: typeof rest.options?.shouldDeleteText === 'boolean' ? rest.options?.shouldDeleteText : true,
     });
+
+    on?.toggle?.(type);
   };
 
   const getRootProps = (): ActionMenuRenderRootProps => ({
@@ -306,6 +311,7 @@ const ActionMenuList = ({ items, render, plugins, trigger = '/', ...rest }: Prop
   const getItemProps = (type: string): ActionMenuRenderItemProps => ({
     onClick: () => toggleElement(type),
     [ACTION_MENU_ITEM_DATA_ATTR]: true,
+    'data-element-active': elements[type]?.isActive,
     'aria-selected': false,
     'data-element-type': type,
   });

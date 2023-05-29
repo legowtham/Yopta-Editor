@@ -5,6 +5,7 @@ import { Overlay } from './components/ElementOptions/Overlay';
 import { useElementSettings } from './contexts/NodeSettingsContext/NodeSettingsContext';
 export { classnames as cx };
 export { isKeyHotkey, isHotkey, isCodeHotkey } from 'is-hotkey';
+export { enableBodyScroll, disableBodyScroll } from 'body-scroll-lock';
 
 import { YooptaEditor } from './YooptaEditor';
 export { isValidYooptaNodes } from './utils/validate';
@@ -26,7 +27,7 @@ export type {
   YooptaRenderHTMLAttributes,
 } from './utils/plugins';
 export type { YooptaMarksConfig, YooptaMark } from './utils/marks';
-export type { YoEditor, RenderYooptaElementProps, YooptaBaseElement, Modify } from './types';
+export type { YooEditor, RenderYooptaElementProps, YooptaBaseElement, Modify } from './types';
 
 const UI_HELPERS = { ElementOptions, Overlay };
 

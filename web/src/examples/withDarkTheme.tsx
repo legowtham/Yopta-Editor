@@ -91,27 +91,6 @@ const plugins = [
     },
   }),
   Image.extend({
-    renderer: {
-      editor: Image.getPlugin.renderer.editor,
-      render: (props) => {
-        const { element, children, attributes, size } = props;
-
-        if (!element.data.url) return null;
-
-        return (
-          <div {...attributes} contentEditable={false}>
-            <NextImage
-              src={element.data.url || element.data['data-src']}
-              width={size?.width || element.data.size.width}
-              height={size?.height || element.data.size.height}
-              alt="supe iamge"
-              style={{ display: 'block', marginTop: 20 }}
-            />
-            {children}
-          </div>
-        );
-      },
-    },
     options: {
       maxWidth: 650,
       maxHeight: 650,

@@ -3,7 +3,7 @@ import { Resizable, ResizableProps } from 're-resizable';
 import { ReactEditor, useReadOnly, useSelected } from 'slate-react';
 import { EditorPlaceholder } from '../components/EditorPlaceholder';
 import { CSSProperties, MouseEvent, useEffect, useMemo, useState } from 'react';
-import { cx, RenderYooptaElementProps, UI_HELPERS, YoEditor, YooptaPluginType } from '@yoopta/editor';
+import { cx, RenderYooptaElementProps, UI_HELPERS, YooEditor, YooptaPluginType } from '@yoopta/editor';
 import { Loader } from '../components/Loader';
 import { disableBodyScroll, enableBodyScroll } from 'body-scroll-lock';
 import { ImageElement, ImagePluginOptions } from '../types';
@@ -12,7 +12,7 @@ import s from './ImageEditor.module.scss';
 const OPTIONS_WIDTH = 265;
 
 type Props = {
-  editor: YoEditor;
+  editor: YooEditor;
   plugin: YooptaPluginType<ImagePluginOptions, ImageElement>;
   element: RenderYooptaElementProps<ImageElement>['element'];
   children: RenderYooptaElementProps<ImageElement>['children'];
@@ -63,10 +63,6 @@ function ImageEditor(props: Props) {
         setSize({ width: ref.offsetWidth, height: ref.offsetHeight });
       },
       onResizeStop: (e, direction, ref) => {
-        console.log('image editor editor.children', editor.children);
-        console.log('ReactEditor.findPath(editor, element)', ReactEditor.findPath(editor, element));
-        console.log('element', element);
-
         Transforms.setNodes<ImageElement>(
           editor,
           { data: { ...element.data, size: { width: ref.offsetWidth, height: ref.offsetHeight } } },
@@ -174,6 +170,7 @@ function ImageEditor(props: Props) {
       key={element.id}
     >
       <Resizable {...resizeProps} className={s.resizeLib}>
+        {/* Move edit props to editorProps */}
         {plugin.renderer.render({ ...props, size })}
         <div className={cx(s.selectImg, { [s.selected]: selected })} />
         {isLoading && (

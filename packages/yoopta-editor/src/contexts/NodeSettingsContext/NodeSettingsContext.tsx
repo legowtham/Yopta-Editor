@@ -78,8 +78,6 @@ const NodeSettingsProvider = ({ children }: NodeSettingsProps) => {
   const [hoveredElement, setHoveredElement] = useState<HoveredElement>(() => getInitialState(editor));
   const [isElementOptionsOpen, setNodeSettingsOpen] = useState<boolean>(false);
 
-  // console.log('hoveredElement', hoveredElement);
-
   const values: NodeSettingsContextValues = {
     hoveredElement,
     isElementOptionsOpen,
@@ -90,19 +88,14 @@ const NodeSettingsProvider = ({ children }: NodeSettingsProps) => {
   const events = useMemo<NodeSettingsContextHandlers>(
     () => ({
       hoverIn: (e: MouseEvent<HTMLDivElement>, node: YooptaBaseElement<string>) => {
-        // console.log('node', node);
-        // console.log('e.current', e.currentTarget);
-
-        // console.log('isElementOptionsOpen', isElementOptionsOpen);
-
         if (isElementOptionsOpen) return e.preventDefault();
-
         if (!!node?.data?.skipSettings) return;
         setHoveredElement(node);
       },
 
       changeHoveredNode: (hoverElement: HoveredElement) => setHoveredElement(hoverElement),
 
+      // [TODO] - research UX and make it sexy
       triggerPlusButton: (elementNode) => {
         Editor.withoutNormalizing(editor, () => {
           if (!editor.selection || !elementNode) return;

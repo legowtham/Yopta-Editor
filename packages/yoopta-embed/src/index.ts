@@ -1,4 +1,4 @@
-import { generateId, getElementByPath, createYooptaPlugin, YoEditor } from '@yoopta/editor';
+import { generateId, getElementByPath, createYooptaPlugin, YooEditor } from '@yoopta/editor';
 import { Transforms } from 'slate';
 import { EmbedElement, EmbedElementData, EmbedPluginOptions } from './types';
 import { Embed as EmbedRender } from './ui/Embed';
@@ -6,7 +6,7 @@ import { EmbedEditorFactory } from './ui/EmbedEditor';
 
 declare module 'slate' {
   interface CustomTypes {
-    Editor: YoEditor;
+    Editor: YooEditor;
     Element: EmbedElement;
   }
 }
@@ -50,8 +50,8 @@ const Embed = createYooptaPlugin<EmbedPluginOptions, EmbedElement>({
     data: { url: null, size: { width: 'auto', height: 'auto' }, providerId: null },
     children: [{ text: '' }],
   }),
-  createElement: function (editor) {
-    const node = Embed.getPlugin.defineElement();
+  createElement: (editor, elementData) => {
+    const node: EmbedElement = { ...Embed.getPlugin.defineElement(), ...elementData };
 
     Transforms.setNodes(editor, node, {
       at: editor.selection?.anchor,

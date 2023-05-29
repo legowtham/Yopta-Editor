@@ -1,7 +1,7 @@
 import { Editor, Range, Transforms } from 'slate';
-import { YoEditor } from '../../../types';
+import { YooEditor } from '../../../types';
 
-export const withDeleteFragment = (editor: YoEditor) => {
+export const withDeleteFragment = (editor: YooEditor) => {
   const { deleteFragment } = editor;
 
   // Fixes https://github.com/ianstormtaylor/slate/issues/3605
@@ -15,8 +15,6 @@ export const withDeleteFragment = (editor: YoEditor) => {
 
     const fullRange = Editor.range(editor, firstElementPath, lastElementPath);
     const isAllNodesSelected = Range.equals(selection, fullRange);
-
-    console.log({ isAllNodesSelected, fullRange });
 
     if (isAllNodesSelected) {
       Transforms.removeNodes(editor, { mode: 'highest', hanging: true });

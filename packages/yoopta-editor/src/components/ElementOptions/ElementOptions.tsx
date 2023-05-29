@@ -51,6 +51,8 @@ const ElementOptions = ({ onClose, style, element, render, ...props }: Props) =>
   const tools = useTools();
   const [, handlers] = useElementSettings();
 
+  const { ActionMenu } = tools || {};
+
   // [WIP]
   const handleTurnInto = (event: MouseEvent) => {
     const containerRect = containerRef.current!.getBoundingClientRect();
@@ -92,6 +94,13 @@ const ElementOptions = ({ onClose, style, element, render, ...props }: Props) =>
     props.onCopy?.();
   };
 
+  const onCloseActionMenu = () => setTurnIntoElementsProps({ style: DEFAULT_TURN_INTO_STYLES, open: false });
+
+  const onToggleActionMenu = () => {
+    onCloseActionMenu();
+    handlers.closeNodeSettings();
+  };
+
   /* Work in progress */
   // if (render) {
   //   return (
@@ -107,11 +116,17 @@ const ElementOptions = ({ onClose, style, element, render, ...props }: Props) =>
     <Overlay onClose={onClose}>
       <div style={style} className={cx(s.root, 'yoopta-element-options')} ref={containerRef}>
         <div className={s.content}>
-          {/* {turnIntoElementsProps.open && (
-            <Overlay onClose={() => setTurnIntoElementsProps({ style: DEFAULT_TURN_INTO_STYLES, open: false })}>
-              <ActionMenu style={turnIntoElementsProps.style} options={{ shouldDeleteText: false }} />
+          {turnIntoElementsProps.open && ActionMenu && (
+            <Overlay onClose={onCloseActionMenu}>
+              {ActionMenu && (
+                <ActionMenu
+                  style={turnIntoElementsProps.style}
+                  options={{ shouldDeleteText: false }}
+                  on={{ toggle: onToggleActionMenu }}
+                />
+              )}
             </Overlay>
-          )} */}
+          )}
           <div className={s.group}>
             <button type="button" className={s.item} onClick={onDelete}>
               <div className={s.icon}>
@@ -126,14 +141,14 @@ const ElementOptions = ({ onClose, style, element, render, ...props }: Props) =>
               <div className={s.text}>Duplicate</div>
             </button>
             {/* Work in progress */}
-            {/* {!isVoid && (
+            {!isVoid && (
               <button type="button" className={s.item} onClick={handleTurnInto}>
                 <div className={s.icon}>
                   <TurnIcon />
                 </div>
                 <div className={s.text}>Turn into</div>
               </button>
-            )} */}
+            )}
             <button type="button" className={s.item} onClick={onCopy}>
               <div className={s.icon}>
                 <CopyIcon />

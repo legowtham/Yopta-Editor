@@ -1,4 +1,4 @@
-import { cx } from '@yoopta/editor';
+import { cx, useElements } from '@yoopta/editor';
 import { CSSProperties, RefObject, useEffect, useRef, useState } from 'react';
 import { Editor, Range } from 'slate';
 import { useSlate } from 'slate-react';
@@ -67,7 +67,7 @@ const Toolbar = ({ type = 'bubble', style, className, render }: Props) => {
   };
 
   useEffect(() => {
-    if (isFixedToolbar) return setToolbarProps({ open: true, style: DEFAULT_BUBBLE_STYLE });
+    if (isFixedToolbar) return setToolbarProps({ open: true, style: style || {} });
     if (!editor.selection || !toolbarRef.current) return hideToolbar();
 
     const [, firstElementPath] = Editor.first(editor, [0]);
@@ -89,7 +89,7 @@ const Toolbar = ({ type = 'bubble', style, className, render }: Props) => {
     const editorEl = document.getElementById('yoopta-contenteditable');
 
     if (toolbarProps.open) {
-      editorEl!.addEventListener('blur', hideToolbar);
+      // editorEl!.addEventListener('blur', hideToolbar);
       window.addEventListener('scroll', updateToolbarPosition);
     }
     return () => {

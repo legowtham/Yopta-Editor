@@ -12,14 +12,14 @@ import { getElementByPath } from '../../utils/nodes';
 import { EditorEventHandlers } from '../../types/eventHandlers';
 import { generateId } from '../../utils/generateId';
 import { YooptaMark } from '../../utils/marks';
-import { YoEditor, YooptaBaseElement } from '../../types';
+import { YooEditor, YooptaBaseElement } from '../../types';
 import { deepClone } from '../../utils/deepClone';
 import { isKeyHotkey } from 'is-hotkey';
 import { serializeHtml } from '../../utils/serializeHTML';
 import { YooptaTools } from '../YooptaEditor/YooptaEditor';
 
 type YooptaProps = {
-  editor: YoEditor;
+  editor: YooEditor;
   placeholder?: string;
   readOnly?: boolean;
   plugins: ParentYooptaPlugin[];
@@ -251,6 +251,7 @@ const EditorYoopta = ({
           return;
         }
 
+        // [TODO] - check if is inline node
         Transforms.select(editor, nodeEntry[1]);
         return;
       }
@@ -312,8 +313,9 @@ const EditorYoopta = ({
 
     return Object.keys(tools).map((toolkey) => {
       const tool = tools[toolkey] as ReactNode;
+      const isFloatedTool = tool?.props.onlyTool === true;
+      if (!React.isValidElement(tool) || isFloatedTool) return null;
 
-      if (!React.isValidElement(tools[toolkey])) return null;
       return React.cloneElement(tool, {
         key: toolkey,
         plugins,
