@@ -1,63 +1,29 @@
-import { generateId, YooEditor, YooptaBaseElement } from '@yoopta/editor';
+import { YooEditor, YooptaBaseElement, YooptaBaseToolProps } from '@yoopta/editor';
 import { useState, ChangeEvent, MouseEvent, useEffect, useRef } from 'react';
-import { Editor, Element, Range, Transforms } from 'slate';
 import { useSlate } from 'slate-react';
 import DoneIcon from './icons/done.svg';
 import CloseIcon from './icons/close.svg';
+import { addLinkNode, getMatchedLinkNode, removeLinkNode } from '../utils/link';
 import s from './LinkTool.module.scss';
+import { Selection } from 'slate';
 
-const removeLinkNode = (editor: YooEditor, selection: Range) => {
-  Editor.withoutNormalizing(editor, () => {
-    Transforms.unwrapNodes(editor, {
-      match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.type === 'link',
-      at: selection.anchor.path,
-      mode: 'lowest',
-    });
-  });
-};
+declare module 'slate' {
+  interface CustomTypes {
+    Editor: YooEditor;
+    Element: YooptaBaseElement<string>;
+  }
+}
 
-const addLinkNode = (editor: YooEditor, url: string, selection: Range) => {
-  Editor.withoutNormalizing(editor, () => {
-    let linkSelection: Range = selection;
+type Events = {
+  delete: () => {};
+  add: () => {};
+}
 
-    if (isLinkNodeActive(editor, selection)) {
-      removeLinkNode(editor, selection);
+type Props = YooptaBaseToolProps<any, Events> & {
+  selection?: Selection
+}
 
-      linkSelection = {
-        anchor: { ...linkSelection.anchor, path: linkSelection.anchor.path.slice(0, -1) },
-        focus: { ...linkSelection.focus, path: linkSelection.focus.path.slice(0, -1) },
-      };
-    }
-
-    const link: YooptaBaseElement<'link'> = {
-      id: generateId(),
-      type: 'link',
-      data: { url, skipDrag: true },
-      children: [],
-      nodeType: 'inline',
-    };
-
-    Transforms.wrapNodes(editor, link, { split: true, at: linkSelection });
-    Transforms.collapse(editor, { edge: 'end' });
-  });
-};
-
-const isLinkNodeActive = (editor: YooEditor, selection: Range) => {
-  return !!getMatchedLinkNode(editor, selection);
-};
-
-const getMatchedLinkNode = (editor: Editor, selection: Range) => {
-  const [match] = Array.from(
-    Editor.nodes(editor, {
-      at: Editor.unhangRange(editor, selection),
-      match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.type === 'link',
-    }),
-  );
-
-  return match;
-};
-
-const LinkTool = ({ asTool, style, selection, on }) => {
+const LinkTool = ({ fromHook, style, selection, on }: Props) => {
   const editor = useSlate() as YooEditor;
 
   const [url, setUrl] = useState('');
@@ -69,33 +35,37 @@ const LinkTool = ({ asTool, style, selection, on }) => {
   const deleteLink = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
-    removeLinkNode(editor, selection);
+    if (selection) removeLinkNode(editor, selection);
     on?.delete?.();
   };
 
   const addLink = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-
-    if (url.length === 0) {
-      removeLinkNode(editor, selection);
-    } else {
-      addLinkNode(editor, url, selection);
+    
+    if (selection) {
+      if (url.length === 0) {
+        removeLinkNode(editor, selection);
+      } else {
+        addLinkNode(editor, url, selection);
+      }
     }
 
     on?.add?.();
   };
 
   useEffect(() => {
-    if (asTool) {
+    if (fromHook) {
       inputRef.current?.focus();
-      const [matchedLinkNode] = getMatchedLinkNode(editor, selection) || [];
-
-      if (matchedLinkNode) {
-        setUrl(matchedLinkNode.data?.url);
-        setLinkNode(linkNode);
+      if (selection) {
+        const [matchedLinkNode] = getMatchedLinkNode(editor, selection) || [];
+  
+        if (matchedLinkNode) {
+          setUrl(matchedLinkNode.data?.url);
+          setLinkNode(linkNode);
+        }
       }
     }
-  }, [inputRef.current, asTool, selection]);
+  }, [inputRef.current, fromHook, selection]);
 
   return (
     <div className={s.block} style={style}>

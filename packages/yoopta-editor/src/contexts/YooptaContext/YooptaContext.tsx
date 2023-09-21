@@ -7,7 +7,6 @@ import { YooptaMark } from '../../utils/marks';
 import { getDefaultParagraphLine } from '../../components/Editor/utils';
 import { generateId } from '../../utils/generateId';
 import { YooptaTools } from '../../components/YooptaEditor/YooptaEditor';
-import { useNodeElementSettings } from '../NodeSettingsContext/NodeSettingsContext';
 
 const defaultValues: YooptaContextReturnValues = { marks: {}, elements: {} };
 
@@ -190,7 +189,7 @@ const YooptaContextProvider = ({ children, plugins: pluginList, marks: markList,
               style,
               className,
               plugins: pluginList,
-              asTool: true,
+              fromHook: true,
               ...ToolComponent?.props,
               ...rest,
             });
@@ -207,8 +206,6 @@ const YooptaContextProvider = ({ children, plugins: pluginList, marks: markList,
     marks,
     tools: yooptaTools,
   };
-
-  // const value = contextValue.current
 
   return <YooptaContext.Provider value={contextValue.current!}>{children}</YooptaContext.Provider>;
 };
